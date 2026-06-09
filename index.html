@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Antigravity IoT Dashboard — Gemini AI Dark Mode with Blynk HTTP API control">
+    <title>⚡ Antigravity IoT Dashboard</title>
+    <!-- Custom Font: Kanit (Thai/English Loopless Modern Sans-serif) -->
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+
+    <!-- ═══════════ AURORA BACKGROUND ═══════════ -->
+    <div class="aurora-container">
+        <div class="aurora-blob blue"></div>
+        <div class="aurora-blob purple"></div>
+        <div class="aurora-blob cyan"></div>
+        <div class="aurora-blob purple-sm"></div>
+        <div class="aurora-blob blue-sm"></div>
+    </div>
+
+    <!-- ═══════════ STAR PARTICLES ═══════════ -->
+    <div class="stars" id="starsContainer"></div>
+
+    <!-- ═══════════ MAIN DASHBOARD ═══════════ -->
+    <div class="dashboard">
+
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-badge">
+                <span class="dot"></span>
+                Antigravity IoT System
+            </div>
+            <h1>⚡ IoT Command Center</h1>
+            <p>Zero-gravity dashboard — <span id="headerTemplateId">TMPL668st_v4T</span></p>
+        </header>
+
+        <!-- CREDENTIALS SETTINGS DRAWER -->
+        <div class="card config-card" id="configCard">
+            <div class="card-glow"></div>
+            <div class="config-header" id="configToggle">
+                <div class="config-title">
+                    <span>⚙️</span> การตั้งค่าอุปกรณ์ (Credentials Config)
+                </div>
+                <div class="config-arrow" id="configArrow">▼</div>
+            </div>
+            <div class="config-content" id="configContent">
+                <div class="input-group">
+                    <label for="inputTemplateId">Template ID</label>
+                    <input type="text" id="inputTemplateId" value="TMPL668st_v4T" placeholder="TMPLxxxxxx">
+                </div>
+                <div class="input-group">
+                    <label for="inputTemplateName">Template Name</label>
+                    <input type="text" id="inputTemplateName" value="IoT" placeholder="IoT">
+                </div>
+                <div class="input-group">
+                    <label for="inputAuthToken">Auth Token</label>
+                    <input type="text" id="inputAuthToken" value="k9-mboSq4hpeB-Q9Mnc_67-cFJLg5TaP"
+                        placeholder="Blynk Auth Token">
+                </div>
+                <button class="btn-save" id="btnSaveConfig">บันทึกการตั้งค่า</button>
+            </div>
+        </div>
+
+        <!-- STATUS BAR -->
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="indicator" id="connectionIndicator"></div>
+                <span id="connectionText">Connecting...</span>
+            </div>
+            <div class="status-item">
+                🕒 <span id="lastUpdate">--:--:--</span>
+            </div>
+            <div class="status-item">
+                📡 <span>SGP1 Server</span>
+            </div>
+        </div>
+
+        <!-- CARD GRID -->
+        <div class="grid">
+
+            <!-- ═══════ CARD 1: Power Switch (V0) ═══════ -->
+            <div class="card switch-card" id="cardSwitch">
+                <div class="card-glow"></div>
+                <div class="card-header">
+                    <div class="card-icon">⚡</div>
+                    <div class="card-header-text">
+                        <h3>ปุ่มเปิด/ปิด</h3>
+                        <span class="pin-label">Virtual Pin V0</span>
+                    </div>
+                </div>
+                <div class="switch-body">
+                    <span class="switch-status-text off" id="switchLabel">OFF</span>
+                    <label class="toggle-switch" id="powerToggle">
+                        <input type="checkbox" id="powerSwitch">
+                        <span class="toggle-track"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- ═══════ CARD 2: Brightness Slider (V2) ═══════ -->
+            <div class="card slider-card" id="cardSlider">
+                <div class="card-glow"></div>
+                <div class="card-header">
+                    <div class="card-icon">💡</div>
+                    <div class="card-header-text">
+                        <h3>ปรับค่าแสง</h3>
+                        <span class="pin-label">Virtual Pin V2</span>
+                    </div>
+                </div>
+                <div class="slider-value-display">
+                    <span class="value" id="brightnessValue">0</span>
+                    <span class="unit">/ 255</span>
+                </div>
+                <div class="slider-container">
+                    <div class="slider-fill-track" id="sliderFill"></div>
+                    <input type="range" id="brightnessSlider" min="0" max="255" value="0">
+                    <div class="slider-labels">
+                        <span>0</span>
+                        <span>128</span>
+                        <span>255</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════ CARD 3: LED Status (V1) ═══════ -->
+            <div class="card led-card" id="cardLed">
+                <div class="card-glow"></div>
+                <div class="card-header">
+                    <div class="card-icon">🔮</div>
+                    <div class="card-header-text">
+                        <h3>สถานะการทำงาน</h3>
+                        <span class="pin-label">Virtual Pin V1</span>
+                    </div>
+                </div>
+                <div class="led-body">
+                    <div class="led-orb-container">
+                        <div class="led-orb" id="ledOrb"></div>
+                        <div class="led-orb-ring" id="ledRing"></div>
+                    </div>
+                    <span class="led-status-label inactive" id="ledLabel">INACTIVE</span>
+
+                    <!-- Simulating LED state update V1 -->
+                    <div class="simulator-control">
+                        <span class="simulator-label">จำลองสลับสถานะไฟ V1 (Update)</span>
+                        <div class="sim-btn-group">
+                            <button class="btn-sim" id="btnLedOn">ON (1)</button>
+                            <button class="btn-sim off" id="btnLedOff">OFF (0)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════ CARD 4: Temperature (V3) ═══════ -->
+            <div class="card temp-card" id="cardTemp">
+                <div class="card-glow"></div>
+                <div class="card-header">
+                    <div class="card-icon">🌡️</div>
+                    <div class="card-header-text">
+                        <h3>ค่าอุณหภูมิ</h3>
+                        <span class="pin-label">Virtual Pin V3</span>
+                    </div>
+                </div>
+                <div class="temp-body">
+                    <div class="temp-gauge">
+                        <svg viewBox="0 0 160 90">
+                            <defs>
+                                <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="var(--cyan)" />
+                                    <stop offset="50%" stop-color="var(--blue)" />
+                                    <stop offset="100%" stop-color="var(--purple)" />
+                                </linearGradient>
+                            </defs>
+                            <path class="gauge-bg" d="M 20 80 A 60 60 0 0 1 140 80" />
+                            <path class="gauge-fill" id="gaugeFill" d="M 20 80 A 60 60 0 0 1 140 80"
+                                stroke-dasharray="188.5" stroke-dashoffset="188.5" />
+                        </svg>
+                    </div>
+                    <div class="temp-value">
+                        <span class="number" id="tempNumber">--</span>
+                        <span class="degree">°C</span>
+                    </div>
+                    <div class="temp-range">
+                        <span>0°C</span>
+                        <span>50°C</span>
+                        <span>100°C</span>
+                    </div>
+
+                    <!-- Simulate Temperature Input -->
+                    <div class="simulator-control">
+                        <span class="simulator-label">จำลองค่าอุณหภูมิ V3 (Update)</span>
+                        <input type="range" id="simTempSlider" min="0" max="100" value="25">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════ CARD 5: Response Text (V4) ═══════ -->
+            <div class="card text-card" id="cardText">
+                <div class="card-glow"></div>
+                <div class="card-header">
+                    <div class="card-icon">📨</div>
+                    <div class="card-header-text">
+                        <h3>การตอบกลับ</h3>
+                        <span class="pin-label">Virtual Pin V4</span>
+                    </div>
+                </div>
+                <div class="text-response-body">
+                    <div class="holographic-scanline"></div>
+                    <span class="response-text placeholder" id="responseText">Awaiting data...</span>
+                </div>
+
+                <!-- Send Text Input V4 -->
+                <div class="simulator-control inline-send">
+                    <input type="text" id="inputV4Text" placeholder="พิมพ์ข้อความส่งไปยัง V4...">
+                    <button class="btn-send" id="btnSendV4">ส่ง (Send)</button>
+                </div>
+            </div>
+
+        </div><!-- /grid -->
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <p>Antigravity IoT Dashboard — Gemini AI Dark Mode</p>
+            <div class="tech-stack">
+                HTML • CSS • JS • Blynk HTTP API
+            </div>
+        </div>
+
+    </div><!-- /dashboard -->
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
+
+</body>
+
+</html>
